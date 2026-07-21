@@ -1,13 +1,15 @@
-import { Environment, Float, Lightformer } from '@react-three/drei'
+import { Float } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 import { useRef } from 'react'
 import type { Group } from 'three'
-import { useScrollProgress } from '../hooks/useScrollProgress'
 import { BlenderObject } from './BlenderObject'
 
-export function Experience() {
+type ExperienceProps = {
+  progress: number
+}
+
+export function Experience({ progress }: ExperienceProps) {
   const group = useRef<Group>(null)
-  const { progress } = useScrollProgress()
 
   useFrame((state, delta) => {
     if (!group.current) return
@@ -30,21 +32,16 @@ export function Experience() {
   return (
     <>
       <color attach="background" args={['#0c1714']} />
-      <fog attach="fog" args={['#0c1714', 6, 16]} />
+      <fog attach="fog" args={['#0c1714', 7, 18]} />
 
-      <ambientLight intensity={0.35} />
-      <directionalLight position={[4, 6, 2]} intensity={1.35} color="#fff4e5" />
-      <pointLight position={[-3, 1.5, 2]} intensity={18} color="#7ee0c3" distance={12} />
-
-      <Environment resolution={256}>
-        <Lightformer intensity={1.4} position={[0, 4, -2]} scale={[8, 2, 1]} form="rect" color="#d8ff6e" />
-        <Lightformer intensity={0.7} position={[-5, 1, 3]} scale={[3, 6, 1]} form="rect" color="#7ee0c3" />
-        <Lightformer intensity={0.45} position={[5, -1, 1]} scale={[4, 3, 1]} form="rect" color="#ffffff" />
-      </Environment>
+      <ambientLight intensity={0.55} />
+      <hemisphereLight args={['#d8ff6e', '#12231f', 0.45]} />
+      <directionalLight position={[4, 6, 2]} intensity={1.4} color="#fff4e5" />
+      <pointLight position={[-3, 1.5, 2]} intensity={14} color="#7ee0c3" distance={12} />
+      <pointLight position={[2.5, -0.5, -1.5]} intensity={8} color="#d8ff6e" distance={10} />
 
       <group ref={group}>
         <Float speed={1.2} rotationIntensity={0.25} floatIntensity={0.55}>
-          {/* Drop your exported .glb into /public/models/hero.glb */}
           <BlenderObject url="/models/hero.glb" />
         </Float>
       </group>

@@ -1,11 +1,31 @@
-import { Center, useGLTF } from '@react-three/drei'
 import { useEffect, useState } from 'react'
+import { Center, useGLTF } from '@react-three/drei'
 import { Mesh } from 'three'
 import { PlaceholderObject } from './PlaceholderObject'
+import { SceneErrorBoundary } from './SceneErrorBoundary'
 
 type BlenderObjectProps = {
   url: string
   scale?: number
+}
+
+async function isGlbAvailable(url: string) {
+  try {
+    const response = await fetch(url, { method: 'GET', cache: 'no-store' })
+
+    if (!response.ok) return false
+
+    const contentType = response.headers.get('content-type') ?? ''
+    if (contentType.includes('text/html')) return false
+
+    const buffer = await response.arrayBuffer()
+    if (buffer.byteLength < 12) return false
+
+    const magic = new TextDecoder().decode(new Uint8Array(buffer, 0, 4))
+    return magic === 'glTF'
+  } catch {
+    return false
+  }
 }
 
 /**
@@ -18,23 +38,24 @@ export function BlenderObject({ url, scale = 1.15 }: BlenderObjectProps) {
   useEffect(() => {
     let cancelled = false
 
-    fetch(url, { method: 'HEAD' })
-      .then((res) => {
-        if (!cancelled) setAvailable(res.ok)
-      })
-      .catch(() => {
-        if (!cancelled) setAvailable(false)
-      })
+    isGlbAvailable(url).then((ok) => {
+      if (!cancelled) setAvailable(ok)
+    })
 
     return () => {
       cancelled = true
     }
   }, [url])
 
-  if (available === null) return null
-  if (!available) return <PlaceholderObject />
+  if (available === null || !available) {
+    return <PlaceholderObject />
+  }
 
-  return <GltfModel url={url} scale={scale} />
+  return (
+    <SceneErrorBoundary fallback={<PlaceholderObject />}>
+      <GltfModel url={url} scale={scale} />
+    </SceneErrorBoundary>
+  )
 }
 
 function GltfModel({ url, scale }: { url: string; scale: number }) {
