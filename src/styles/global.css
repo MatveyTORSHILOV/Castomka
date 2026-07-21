@@ -82,10 +82,10 @@ body {
 }
 
 .pixel-panel {
-  width: min(300px, 72vw);
-  padding: 1rem 1.1rem 1.15rem;
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  background: rgba(196, 202, 214, 0.1);
+  width: min(340px, 78vw);
+  padding: 1.1rem 1.2rem 1.2rem;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: rgba(210, 216, 228, 0.14);
   backdrop-filter: blur(6px);
   box-shadow:
     0 0 0 1px rgba(255, 255, 255, 0.04) inset,

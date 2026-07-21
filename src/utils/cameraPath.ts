@@ -18,9 +18,12 @@ export function getCameraState(scroll: number) {
   }
 }
 
-/** Позиция панели в мире — рядом с траекторией камеры в точке scrollAt */
-export function getPanelWorldPosition(scrollAt: number, offset: Vec3): Vec3 {
-  const { position, lookAt } = getCameraState(scrollAt)
+/**
+ * Панель прямо перед камерой в точке скролла.
+ * offset: [вправо, вверх, вперёд по взгляду]
+ */
+export function getPanelWorldPosition(scroll: number, offset: Vec3): Vec3 {
+  const { position, lookAt } = getCameraState(scroll)
 
   _position.set(...position)
   _lookAt.set(...lookAt)
@@ -32,7 +35,7 @@ export function getPanelWorldPosition(scrollAt: number, offset: Vec3): Vec3 {
     .copy(_position)
     .addScaledVector(_right, offset[0])
     .addScaledVector(_up, offset[1])
-    .addScaledVector(_forward, -offset[2])
+    .addScaledVector(_forward, offset[2])
 
   return [_world.x, _world.y, _world.z]
 }

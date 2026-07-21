@@ -44,10 +44,10 @@ function buildParticles(width: number, height: number, count: number): ParticleL
     const gz = 0
 
     const angle = rand() * Math.PI * 2
-    const radius = 0.35 + rand() * 1.65
+    const radius = 0.25 + rand() * 1.1
     const sx = gx + Math.cos(angle) * radius
     const sy = gy + Math.sin(angle) * radius
-    const sz = (rand() - 0.5) * 1.4
+    const sz = (rand() - 0.5) * 1.0
 
     const idx = i * 3
     grid[idx] = gx
@@ -64,9 +64,9 @@ function buildParticles(width: number, height: number, count: number): ParticleL
 
 export function PanelParticleField({
   reveal,
-  width = 2.35,
-  height = 1.45,
-  particleCount = 360,
+  width = 2.6,
+  height = 1.65,
+  particleCount = 920,
 }: PanelParticleFieldProps) {
   const meshRef = useRef<InstancedMesh>(null)
   const revealRef = useRef(0)
@@ -100,7 +100,7 @@ export function PanelParticleField({
         sy + (gy - sy) * t,
         sz + (gz - sz) * t,
       )
-      tempObject.scale.setScalar(0.018 + t * 0.02)
+      tempObject.scale.setScalar(0.022 + t * 0.026)
       tempObject.updateMatrix()
       mesh.setMatrixAt(i, tempObject.matrix)
     }
@@ -108,16 +108,16 @@ export function PanelParticleField({
     mesh.instanceMatrix.needsUpdate = true
 
     const material = mesh.material as MeshBasicMaterial
-    material.opacity = 0.08 + t * 0.72
-    material.color.setRGB(0.82 + t * 0.18, 0.84 + t * 0.16, 0.88 + t * 0.12)
+    material.opacity = 0.12 + t * 0.78
+    material.color.setRGB(0.84 + t * 0.16, 0.86 + t * 0.14, 0.9 + t * 0.1)
   })
 
   if (reveal <= 0.001 && revealRef.current <= 0.001) return null
 
   return (
-    <instancedMesh ref={meshRef} args={[undefined, undefined, particleCount]}>
-      <circleGeometry args={[1, 8]} />
-      <meshBasicMaterial transparent opacity={0.5} color="#d8dde8" depthWrite={false} />
+    <instancedMesh ref={meshRef} args={[undefined, undefined, particleCount]} frustumCulled={false}>
+      <circleGeometry args={[1, 10]} />
+      <meshBasicMaterial transparent opacity={0.6} color="#e8ecf4" depthWrite={false} />
     </instancedMesh>
   )
 }

@@ -3,7 +3,7 @@ import type { Vec3 } from '../config/presets'
 export type InfoPanelConfig = {
   id: string
   scrollAt: number
-  /** Смещение от камеры: [вправо, вверх, вглубь сцены] */
+  /** [вправо, вверх, вперёд по взгляду] — держи lateral < 0.35 */
   offset: Vec3
   tag: string
   title: string
@@ -14,7 +14,7 @@ export const infoPanels: InfoPanelConfig[] = [
   {
     id: 'nebula',
     scrollAt: 0.14,
-    offset: [1.45, 0.25, 0.35],
+    offset: [0.1, 0.02, 1.35],
     tag: '01',
     title: 'ТУМАННОСТЬ',
     body: 'Облака газа и пыли, где рождаются звёзды. Свет молодых солнц разгоняет тьму на тысячи световых лет.',
@@ -22,7 +22,7 @@ export const infoPanels: InfoPanelConfig[] = [
   {
     id: 'black-hole',
     scrollAt: 0.3,
-    offset: [-1.55, -0.15, 0.55],
+    offset: [-0.14, -0.02, 1.45],
     tag: '02',
     title: 'ЧЁРНАЯ ДЫРА',
     body: 'Гравитация настолько сильна, что даже свет не вырывается. За горизонтом событий время течёт иначе.',
@@ -30,7 +30,7 @@ export const infoPanels: InfoPanelConfig[] = [
   {
     id: 'light-year',
     scrollAt: 0.46,
-    offset: [0.35, 1.05, 0.75],
+    offset: [0.08, 0.1, 1.55],
     tag: '03',
     title: 'СВЕТОВОЙ ГОД',
     body: 'Расстояние, которое свет проходит за год — почти 9.5 триллионов километров. Космос меряют не шагами.',
@@ -38,7 +38,7 @@ export const infoPanels: InfoPanelConfig[] = [
   {
     id: 'exoplanet',
     scrollAt: 0.62,
-    offset: [-1.25, 0.4, 0.95],
+    offset: [-0.1, 0.05, 1.65],
     tag: '04',
     title: 'ЭКЗОПЛАНЕТА',
     body: 'Мир за пределами Солнечной системы. Тысячи уже найдены — среди них могут быть океаны и атмосферы.',
@@ -46,33 +46,28 @@ export const infoPanels: InfoPanelConfig[] = [
   {
     id: 'dust',
     scrollAt: 0.78,
-    offset: [1.35, -0.35, 1.15],
+    offset: [0.12, -0.06, 1.75],
     tag: '05',
     title: 'КОСМИЧЕСКАЯ ПЫЛЬ',
     body: 'Микроскопические частицы — строительный материал планет. Из такой пыли когда-то собралась Земля.',
   },
 ]
 
-/** Ширина зоны «находки» панели по скроллу */
-export const PANEL_ZONE = 0.085
+export const PANEL_ZONE = 0.1
 
 export function getPanelReveal(scroll: number, scrollAt: number, zone = PANEL_ZONE): number {
   const dist = Math.abs(scroll - scrollAt)
 
-  if (dist > zone * 2.2) return 0
+  if (dist > zone * 2.4) return 0
 
   if (dist <= zone) {
-    return 1 - (dist / zone) * 0.15
+    return 1 - (dist / zone) * 0.12
   }
 
-  const fade = 1 - (dist - zone) / (zone * 1.2)
+  const fade = 1 - (dist - zone) / (zone * 1.3)
   return Math.max(0, fade)
 }
 
 export function easeOutCubic(t: number): number {
   return 1 - (1 - t) ** 3
-}
-
-export function easeInCubic(t: number): number {
-  return t ** 3
 }
