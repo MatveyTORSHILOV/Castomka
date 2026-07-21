@@ -1,13 +1,13 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App'
-import { ScrollProgressProvider } from './hooks/useScrollProgress'
+import { SceneInputProvider } from './hooks/useSceneInput'
 import './styles/global.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <ScrollProgressProvider>
+    <SceneInputProvider>
       <App />
-    </ScrollProgressProvider>
+    </SceneInputProvider>
   </StrictMode>,
 )
