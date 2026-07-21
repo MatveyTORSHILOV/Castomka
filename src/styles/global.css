@@ -59,7 +59,7 @@ body {
 }
 
 .scroll-track {
-  height: 320vh;
+  height: 620vh;
 }
 
 .progress-rail {
@@ -79,4 +79,50 @@ body {
   background: rgba(255, 255, 255, 0.28);
   transform-origin: left center;
   transition: transform 80ms linear;
+}
+
+.pixel-panel {
+  width: min(300px, 72vw);
+  padding: 1rem 1.1rem 1.15rem;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(196, 202, 214, 0.1);
+  backdrop-filter: blur(6px);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.04) inset,
+    0 12px 40px rgba(0, 0, 0, 0.35);
+  color: rgba(255, 255, 255, 0.92);
+  font-family: 'Press Start 2P', monospace;
+  image-rendering: pixelated;
+  user-select: none;
+}
+
+.pixel-panel__tag {
+  display: block;
+  margin-bottom: 0.85rem;
+  font-size: 0.52rem;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.pixel-panel__title {
+  margin: 0 0 0.9rem;
+  font-size: clamp(0.58rem, 2.4vw, 0.68rem);
+  line-height: 1.55;
+  letter-spacing: 0.04em;
+  text-shadow: 0 0 12px rgba(255, 255, 255, 0.15);
+}
+
+.pixel-panel__body {
+  margin: 0;
+  font-family: 'Press Start 2P', monospace;
+  font-size: clamp(0.44rem, 1.9vw, 0.5rem);
+  line-height: 1.85;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+@media (max-width: 640px) {
+  .pixel-panel {
+    width: min(260px, 84vw);
+    padding: 0.85rem 0.9rem 1rem;
+  }
 }

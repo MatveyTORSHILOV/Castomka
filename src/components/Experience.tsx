@@ -2,9 +2,11 @@ import { useFrame } from '@react-three/fiber'
 import { useRef } from 'react'
 import type { Group, PerspectiveCamera } from 'three'
 import { Vector3 } from 'three'
-import { lerp3, sceneConfig } from '../config/scene'
+import { sceneConfig } from '../config/scene'
 import type { PointerState } from '../hooks/useSceneInput'
+import { getCameraState } from '../utils/cameraPath'
 import { BlenderObject } from './BlenderObject'
+import { DiscoveryPanels } from './panels/DiscoveryPanels'
 
 type ExperienceProps = {
   scroll: number
@@ -24,9 +26,9 @@ export function Experience({ scroll, pointer }: ExperienceProps) {
     smoothPointer.x += (pointer.x - smoothPointer.x) * blend
     smoothPointer.y += (pointer.y - smoothPointer.y) * blend
 
-    const t = scroll
-    const [px, py, pz] = lerp3(cam.start.position, cam.end.position, t)
-    const [lx, ly, lz] = lerp3(cam.start.lookAt, cam.end.lookAt, t)
+    const { position: camPos, lookAt: camLook } = getCameraState(scroll)
+    const [px, py, pz] = camPos
+    const [lx, ly, lz] = camLook
 
     const perspective = state.camera as PerspectiveCamera
     perspective.fov = cam.fov
@@ -52,8 +54,8 @@ export function Experience({ scroll, pointer }: ExperienceProps) {
     if (!group.current) return
 
     const targetRotY =
-      t * sceneRotation.y + smoothPointer.x * mouse.orbit[0] + smoothPointer.y * mouse.orbit[2]
-    const targetRotX = t * sceneRotation.x + smoothPointer.y * mouse.orbit[1]
+      scroll * sceneRotation.y + smoothPointer.x * mouse.orbit[0] + smoothPointer.y * mouse.orbit[2]
+    const targetRotX = scroll * sceneRotation.x + smoothPointer.y * mouse.orbit[1]
 
     group.current.rotation.y += (targetRotY - group.current.rotation.y) * Math.min(1, delta * 3)
     group.current.rotation.x += (targetRotX - group.current.rotation.x) * Math.min(1, delta * 3)
@@ -88,6 +90,8 @@ export function Experience({ scroll, pointer }: ExperienceProps) {
           playAnimations={model.playAnimations}
         />
       </group>
+
+      {isSpace && <DiscoveryPanels scroll={scroll} />}
     </>
   )
 }
