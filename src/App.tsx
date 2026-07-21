@@ -5,25 +5,26 @@ import { Experience } from './components/Experience'
 import { Overlay } from './components/Overlay'
 import { PlaceholderObject } from './components/PlaceholderObject'
 import { SceneErrorBoundary } from './components/SceneErrorBoundary'
-import { useScrollProgress } from './hooks/useScrollProgress'
+import { useSceneInput } from './hooks/useSceneInput'
 
-function Scene({ progress }: { progress: number }) {
+function Scene() {
+  const { scroll, pointer } = useSceneInput()
+
   return (
     <SceneErrorBoundary fallback={<PlaceholderObject />}>
       <Suspense fallback={<PlaceholderObject />}>
-        <Experience progress={progress} />
+        <Experience scroll={scroll} pointer={pointer} />
       </Suspense>
     </SceneErrorBoundary>
   )
 }
 
 export default function App() {
-  const { progress } = useScrollProgress()
   const { start, fov, near, far } = sceneConfig.camera
 
   return (
     <div className="app-shell">
-      <div className="canvas-layer" aria-hidden="true">
+      <div className="canvas-layer">
         <Canvas
           camera={{
             position: start.position,
@@ -39,7 +40,7 @@ export default function App() {
             failIfMajorPerformanceCaveat: false,
           }}
         >
-          <Scene progress={progress} />
+          <Scene />
         </Canvas>
       </div>
       <Overlay />
