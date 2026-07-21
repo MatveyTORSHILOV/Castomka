@@ -1,12 +1,16 @@
-import { useEffect, useState } from 'react'
-import { Center, useGLTF } from '@react-three/drei'
-import { Mesh } from 'three'
+import { useAnimations, useGLTF } from '@react-three/drei'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { Box3, Group, Mesh, Vector3 } from 'three'
+import { sceneConfig } from '../config/scene'
 import { PlaceholderObject } from './PlaceholderObject'
 import { SceneErrorBoundary } from './SceneErrorBoundary'
 
 type BlenderObjectProps = {
   url: string
   scale?: number
+  offset?: [number, number, number]
+  playAnimations?: boolean
+  onBounds?: (size: Vector3) => void
 }
 
 async function isGlbAvailable(url: string) {
@@ -28,11 +32,13 @@ async function isGlbAvailable(url: string) {
   }
 }
 
-/**
- * Loads a Blender GLB if present.
- * Falls back to a procedural hero object so the scene works before export.
- */
-export function BlenderObject({ url, scale = 1.15 }: BlenderObjectProps) {
+export function BlenderObject({
+  url,
+  scale = sceneConfig.model.scale,
+  offset = sceneConfig.model.offset,
+  playAnimations = sceneConfig.model.playAnimations,
+  onBounds,
+}: BlenderObjectProps) {
   const [available, setAvailable] = useState<boolean | null>(null)
 
   useEffect(() => {
@@ -53,26 +59,66 @@ export function BlenderObject({ url, scale = 1.15 }: BlenderObjectProps) {
 
   return (
     <SceneErrorBoundary fallback={<PlaceholderObject />}>
-      <GltfModel url={url} scale={scale} />
+      <GltfModel
+        url={url}
+        scale={scale}
+        offset={offset}
+        playAnimations={playAnimations}
+        onBounds={onBounds}
+      />
     </SceneErrorBoundary>
   )
 }
 
-function GltfModel({ url, scale }: { url: string; scale: number }) {
-  const { scene } = useGLTF(url)
+function GltfModel({
+  url,
+  scale,
+  offset,
+  playAnimations,
+  onBounds,
+}: {
+  url: string
+  scale: number
+  offset: [number, number, number]
+  playAnimations: boolean
+  onBounds?: (size: Vector3) => void
+}) {
+  const group = useRef<Group>(null)
+  const { scene, animations } = useGLTF(url)
+  const cloned = useMemo(() => scene.clone(true), [scene])
+  const { actions, names } = useAnimations(animations, group)
 
   useEffect(() => {
-    scene.traverse((obj) => {
+    cloned.traverse((obj) => {
       if (obj instanceof Mesh) {
         obj.castShadow = true
         obj.receiveShadow = true
       }
     })
-  }, [scene])
+
+    const box = new Box3().setFromObject(cloned)
+    const size = box.getSize(new Vector3())
+    onBounds?.(size)
+
+    const center = box.getCenter(new Vector3())
+    cloned.position.sub(center)
+    cloned.position.add(new Vector3(...offset))
+  }, [cloned, offset, onBounds])
+
+  useEffect(() => {
+    if (!playAnimations || names.length === 0) return
+
+    const action = actions[names[0]]
+    action?.reset().fadeIn(0.3).play()
+
+    return () => {
+      action?.fadeOut(0.3)
+    }
+  }, [actions, names, playAnimations])
 
   return (
-    <Center>
-      <primitive object={scene} scale={scale} />
-    </Center>
+    <group ref={group} scale={scale}>
+      <primitive object={cloned} />
+    </group>
   )
 }
