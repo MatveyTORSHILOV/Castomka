@@ -1,55 +1,66 @@
-import { Float } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 import { useRef } from 'react'
-import type { Group } from 'three'
+import type { Group, PerspectiveCamera } from 'three'
+import { Vector3 } from 'three'
+import { lerp3, sceneConfig } from '../config/scene'
 import { BlenderObject } from './BlenderObject'
 
 type ExperienceProps = {
   progress: number
 }
 
+const lookTarget = new Vector3()
+
 export function Experience({ progress }: ExperienceProps) {
   const group = useRef<Group>(null)
+  const { camera: cam, sceneRotation, model } = sceneConfig
 
   useFrame((state, delta) => {
+    const t = progress
+    const [px, py, pz] = lerp3(cam.start.position, cam.end.position, t)
+    const [lx, ly, lz] = lerp3(cam.start.lookAt, cam.end.lookAt, t)
+
+    const perspective = state.camera as PerspectiveCamera
+    perspective.fov = cam.fov
+    perspective.near = cam.near
+    perspective.far = cam.far
+    perspective.updateProjectionMatrix()
+
+    state.camera.position.x += (px - state.camera.position.x) * Math.min(1, delta * 4)
+    state.camera.position.y += (py - state.camera.position.y) * Math.min(1, delta * 4)
+    state.camera.position.z += (pz - state.camera.position.z) * Math.min(1, delta * 4)
+
+    lookTarget.set(lx, ly, lz)
+    state.camera.lookAt(lookTarget)
+
     if (!group.current) return
 
-    const targetY = progress * Math.PI * 1.35
-    const targetX = Math.sin(progress * Math.PI) * 0.18
-    const targetZ = -progress * 0.55
-    const targetCamZ = 4.2 - progress * 1.1
-    const targetCamY = 0.35 + progress * 0.45
+    const targetRotY = t * sceneRotation.y
+    const targetRotX = t * sceneRotation.x
 
-    group.current.rotation.y += (targetY - group.current.rotation.y) * Math.min(1, delta * 4)
-    group.current.rotation.x += (targetX - group.current.rotation.x) * Math.min(1, delta * 4)
-    group.current.position.z += (targetZ - group.current.position.z) * Math.min(1, delta * 4)
-
-    state.camera.position.z += (targetCamZ - state.camera.position.z) * Math.min(1, delta * 3.2)
-    state.camera.position.y += (targetCamY - state.camera.position.y) * Math.min(1, delta * 3.2)
-    state.camera.lookAt(0, 0.1, 0)
+    group.current.rotation.y += (targetRotY - group.current.rotation.y) * Math.min(1, delta * 3)
+    group.current.rotation.x += (targetRotX - group.current.rotation.x) * Math.min(1, delta * 3)
   })
 
   return (
     <>
       <color attach="background" args={['#0c1714']} />
-      <fog attach="fog" args={['#0c1714', 7, 18]} />
+      <fog attach="fog" args={['#0c1714', 2.5, 14]} />
 
-      <ambientLight intensity={0.55} />
-      <hemisphereLight args={['#d8ff6e', '#12231f', 0.45]} />
-      <directionalLight position={[4, 6, 2]} intensity={1.4} color="#fff4e5" />
-      <pointLight position={[-3, 1.5, 2]} intensity={14} color="#7ee0c3" distance={12} />
-      <pointLight position={[2.5, -0.5, -1.5]} intensity={8} color="#d8ff6e" distance={10} />
+      <ambientLight intensity={0.7} />
+      <hemisphereLight args={['#d8ff6e', '#12231f', 0.55]} />
+      <directionalLight position={[2, 3, 1]} intensity={0.9} color="#fff4e5" />
+      <pointLight position={[0, 0.2, 0.4]} intensity={6} color="#7ee0c3" distance={8} />
+      <pointLight position={[0, -0.3, -1]} intensity={4} color="#d8ff6e" distance={6} />
 
       <group ref={group}>
-        <Float speed={1.2} rotationIntensity={0.25} floatIntensity={0.55}>
-          <BlenderObject url="/models/hero.glb" />
-        </Float>
+        <BlenderObject
+          url={model.url}
+          scale={model.scale}
+          offset={model.offset}
+          playAnimations={model.playAnimations}
+        />
       </group>
-
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.35, 0]} receiveShadow>
-        <circleGeometry args={[6, 64]} />
-        <meshStandardMaterial color="#12231f" roughness={0.92} metalness={0.05} />
-      </mesh>
     </>
   )
 }

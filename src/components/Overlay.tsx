@@ -70,18 +70,21 @@ export function Overlay() {
         <section className="section drop" id="drop">
           <h2>Слот под твой объект</h2>
           <p className="section-lead">
-            Пока файла нет — крутится procedural placeholder. Как только появится{' '}
-            <code>public/models/hero.glb</code>, он заменит плейсхолдер.
+            Положи модель в <code>public/models/hero.glb</code>. Камера и анимация настраиваются в{' '}
+            <code>src/config/scene.ts</code>.
           </p>
-          <pre className="code-block">{`# В Blender
-File → Export → glTF 2.0 (.glb)
-☑ Selected Objects
-☑ Apply Modifiers
-☐ +Y Up → оставь стандарт
-сжимай текстуры до 1K
+          <pre className="code-block">{`// src/config/scene.ts — камера внутри облака
+camera: {
+  start: {
+    position: [0, 0.02, 0.12],  // x, y, z — где стоит камера
+    lookAt:   [0, 0, -2.5],     // куда смотрит (на корабль)
+  },
+}
 
-# В проекте
-public/models/hero.glb`}</pre>
+// В Blender перед экспортом:
+// 1. Поставь камеру ВНУТРИ облака
+// 2. Направь на корабль (View → Camera)
+// 3. Export glTF → скопируй координаты камеры в scene.ts`}</pre>
         </section>
 
         <section className="section finale">
