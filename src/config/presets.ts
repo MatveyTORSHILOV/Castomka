@@ -108,5 +108,5 @@ export const presets = {
 
 export type PresetId = keyof typeof presets
 
-/** Смени на 'korablik', чтобы вернуть корабль */
-export const ACTIVE_PRESET: PresetId = 'galaxy'
+/** Смени на 'galaxy', чтобы вернуть галактику */
+export const ACTIVE_PRESET: PresetId = 'korablik'
